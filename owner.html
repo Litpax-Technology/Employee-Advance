@@ -61,33 +61,33 @@
         <div id="tab-recovery" class="tab-content">
           <div class="section-card">
             <h2 class="section-title">Recovery Entry</h2>
-            <p class="section-desc">Sirf woh employees dikhenge jinke paas balance baaki hai.</p>
+            <p class="section-desc">Only employees with pending balance will appear here.</p>
 
             <div class="form-group">
-              <label class="form-label">Employee Select Karein <span class="req">*</span></label>
+              <label class="form-label">Select Employee <span class="req">*</span></label>
               <select id="recoveryEmpSelect" class="form-input form-select" onchange="onEmpSelected()">
-                <option value="">-- Employee Select Karein --</option>
+                <option value="">-- Select Employee --</option>
               </select>
             </div>
 
             <div id="empBalanceInfo" class="balance-info-box hidden">
               <div class="bal-row">
-                <span class="bal-label">Total Advance Liya</span>
+                <span class="bal-label">Total Advance Taken</span>
                 <span id="balTaken" class="bal-val">₹0</span>
               </div>
               <div class="bal-row">
-                <span class="bal-label">Total Wapis Kiya</span>
+                <span class="bal-label">Total Recovered</span>
                 <span id="balRecovered" class="bal-val green">₹0</span>
               </div>
               <div class="bal-row highlight">
-                <span class="bal-label">Baaki Balance</span>
+                <span class="bal-label">Balance Due</span>
                 <span id="balDue" class="bal-val red">₹0</span>
               </div>
             </div>
 
             <div id="recoveryForm" class="hidden">
               <div class="form-group">
-                <label class="form-label">Amount Receive Kiya (₹) <span class="req">*</span></label>
+                <label class="form-label">Amount Received (₹) <span class="req">*</span></label>
                 <div class="input-prefix-wrap">
                   <span class="input-prefix">₹</span>
                   <input type="number" id="recoveryAmount" class="form-input with-prefix" placeholder="0" min="1" />
@@ -113,7 +113,7 @@
                 <input type="text" id="recoveryRemarks" class="form-input" placeholder="Koi note..." />
               </div>
 
-              <button class="btn-primary" onclick="submitRecovery()">✅ Recovery Darj Karein</button>
+              <button class="btn-primary" onclick="submitRecovery()">✅ Record Recovery</button>
             </div>
           </div>
         </div>
