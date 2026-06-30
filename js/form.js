@@ -2,7 +2,7 @@
 // LITPAX ADVANCE FORM — form.js
 // =============================================
 
-const GAS_URL = "YOUR_GAS_WEB_APP_URL_HERE"; // ← Apna GAS URL daalo
+const GAS_URL = CONFIG.GAS_URL;
 
 async function submitForm() {
   const empName   = document.getElementById("empName").value.trim();
