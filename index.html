@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advance Request — Litpax Technology</title>
+  <link rel="stylesheet" href="css/form.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <span class="brand-icon">⚡</span>
+          <div>
+            <div class="brand-name">Litpax Technology</div>
+            <div class="brand-sub">Employee Advance Request</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="form-card">
+
+        <div class="form-title-block">
+          <h1 class="form-title">Request Advance</h1>
+          <p class="form-desc">Yeh form fill karein — Owner review karenge aur approve karenge.</p>
+        </div>
+
+        <div id="successMsg" class="success-banner hidden">
+          <span class="success-icon">✅</span>
+          <div>
+            <div class="success-heading">Request Submit Ho Gayi!</div>
+            <div class="success-id">Request ID: <strong id="generatedId"></strong></div>
+          </div>
+        </div>
+
+        <div id="errorMsg" class="error-banner hidden">
+          <span>⚠️</span>
+          <span id="errorText">Kuch error aaya, dobara try karein.</span>
+        </div>
+
+        <div id="formContainer">
+          <div class="form-group">
+            <label class="form-label" for="empName">Aapka Naam <span class="req">*</span></label>
+            <input type="text" id="empName" class="form-input" placeholder="Poora naam likhein" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="empId">Employee ID <span class="req">*</span></label>
+              <input type="text" id="empId" class="form-input" placeholder="Jaise: LTX-001" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dept">Department <span class="req">*</span></label>
+              <select id="dept" class="form-input form-select">
+                <option value="">-- Select --</option>
+                <option>Production</option>
+                <option>Sales</option>
+                <option>Management</option>
+                <option>Repair</option>
+                <option>Service</option>
+                <option>Marketing</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="amount">Amount Chahiye (₹) <span class="req">*</span></label>
+            <div class="input-prefix-wrap">
+              <span class="input-prefix">₹</span>
+              <input type="number" id="amount" class="form-input with-prefix" placeholder="0" min="1" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reason">Wajah / Reason <span class="req">*</span></label>
+            <textarea id="reason" class="form-input form-textarea" placeholder="Advance kyun chahiye, thoda detail mein likhein..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Wapsi Kaise Karenge? <span class="req">*</span></label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="repayType" value="Salary Deduct" />
+                <span class="radio-box">
+                  <span class="radio-icon">💼</span>
+                  <span class="radio-label">Salary se Katwa Dein</span>
+                </span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="repayType" value="Cash" />
+                <span class="radio-box">
+                  <span class="radio-icon">💵</span>
+                  <span class="radio-label">Cash Denge</span>
+                </span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="repayType" value="Flexible" />
+                <span class="radio-box">
+                  <span class="radio-icon">🔄</span>
+                  <span class="radio-label">Jab Hoga Tab</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <button id="submitBtn" class="submit-btn" onclick="submitForm()">
+            <span id="btnText">Request Bhejein</span>
+            <span id="btnLoader" class="hidden">Submitting...</span>
+          </button>
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      © 2025 Litpax Technology Pvt. Ltd. — Internal Use Only
+    </footer>
+
+  </div>
+
+  <script src="js/form.js"></script>
+</body>
+</html>
