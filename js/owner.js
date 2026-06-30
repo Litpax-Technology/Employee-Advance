@@ -135,6 +135,9 @@ async function approveRequest() {
 
   if (!amount || amount <= 0) { showToast("Enter amount to approve.", "error"); return; }
 
+  const btn = document.querySelector(".btn-primary[onclick='approveRequest()']");
+  if (btn) { btn.disabled = true; btn.textContent = "Processing..."; }
+
   try {
     const res  = await fetch(GAS_URL, {
       method: "POST",
@@ -156,12 +159,17 @@ async function approveRequest() {
     }
   } catch (err) {
     showToast("Server error. Try again.", "error");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "✅ Approve"; }
   }
 }
 
 async function rejectRequest() {
   const remarks = document.getElementById("approveRemarks").value.trim();
   if (!confirm("Reject this request?")) return;
+
+  const btn = document.querySelector(".btn-danger[onclick='rejectRequest()']");
+  if (btn) { btn.disabled = true; btn.textContent = "Processing..."; }
 
   try {
     const res  = await fetch(GAS_URL, {
@@ -181,6 +189,8 @@ async function rejectRequest() {
     }
   } catch (err) {
     showToast("Server error. Try again.", "error");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "❌ Reject"; }
   }
 }
 
@@ -250,6 +260,9 @@ async function submitRecovery() {
     return;
   }
 
+  const btn = document.querySelector(".btn-primary[onclick='submitRecovery()']");
+  if (btn) { btn.disabled = true; btn.textContent = "Recording..."; }
+
   try {
     const res  = await fetch(GAS_URL, {
       method: "POST",
@@ -279,6 +292,8 @@ async function submitRecovery() {
     }
   } catch (err) {
     showToast("Server error. Try again.", "error");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "✅ Record Recovery"; }
   }
 }
 
