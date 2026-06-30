@@ -16,12 +16,18 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function loadAll() {
+  const selectedEmp = document.getElementById("recoveryEmpSelect")?.value || "";
   await Promise.all([
     loadPendingRequests(),
     loadActiveAdvances(),
     loadBalance(),
     loadAllRequests()
   ]);
+  // Restore selected employee after reload
+  if (selectedEmp) {
+    document.getElementById("recoveryEmpSelect").value = selectedEmp;
+    onEmpSelected();
+  }
 }
 
 // =============================================
