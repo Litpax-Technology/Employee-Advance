@@ -12,13 +12,13 @@ async function submitForm() {
   const reason    = document.getElementById("reason").value.trim();
   const repayType = document.querySelector('input[name="repayType"]:checked');
 
-  // Validation
-  if (!empName || !empId || !dept || !amount || !reason || !repayType) {
-    showError("Sab fields bharna zaroori hai.");
+  // Validation — empId and reason are optional
+  if (!empName || !dept || !amount || !repayType) {
+    showError("Please fill all required fields.");
     return;
   }
   if (parseFloat(amount) <= 0) {
-    showError("Amount sahi daalo.");
+    showError("Please enter a valid amount.");
     return;
   }
 
@@ -48,10 +48,10 @@ async function submitForm() {
       document.getElementById("generatedId").textContent = data.requestId;
       document.getElementById("successMsg").classList.remove("hidden");
     } else {
-      showError("Error: " + (data.error || "Kuch gadbad hui."));
+      showError("Error: " + (data.error || "Something went wrong."));
     }
   } catch (err) {
-    showError("Server se connect nahi hua. Dobara try karein.");
+    showError("Could not connect to server. Please try again.");
   } finally {
     document.getElementById("btnText").classList.remove("hidden");
     document.getElementById("btnLoader").classList.add("hidden");
