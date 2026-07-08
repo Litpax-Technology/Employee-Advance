@@ -3,713 +3,226 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Litpax — Advance Management (Owner)</title>
+<title>Litpax — Advance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#f6f9fc;
-    --sidebar:#ffffff;
-    --card:#ffffff;
-    --accent:#635bff;
-    --accent-dark:#4b45c6;
-    --text:#0a2540;
-    --muted:#697386;
-    --border:#e6e9ee;
-    --green:#0e9f6e;
-    --red:#e02424;
-    --amber:#c27803;
+    --bg:#f6f9fc; --card:#ffffff; --accent:#635bff; --accent2:#00d4b1;
+    --text:#0a2540; --muted:#697386; --border:#e6e9ee;
+    --green:#0e9f6e; --red:#e02424; --amber:#c27803;
     --shadow:0 1px 3px rgba(10,37,64,.08),0 1px 2px rgba(10,37,64,.04);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--bg);color:var(--text);
-    display:flex;min-height:100vh;
+    background:var(--bg);color:var(--text);padding:24px;
   }
   .hidden{display:none !important;}
-
-  /* ---------- SIDEBAR ---------- */
-  .sidebar{
-    width:240px;background:var(--sidebar);border-right:1px solid var(--border);
-    display:flex;flex-direction:column;padding:20px 0;position:sticky;top:0;height:100vh;
-  }
-  .brand{padding:0 22px 20px;border-bottom:1px solid var(--border);}
-  .brand h1{font-size:18px;color:var(--accent);font-weight:700;letter-spacing:-.3px;}
-  .brand span{font-size:12px;color:var(--muted);}
-  .nav{margin-top:14px;display:flex;flex-direction:column;gap:2px;padding:0 12px;}
-  .nav-item{
-    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
-    color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;position:relative;
-    transition:.15s;
-  }
-  .nav-item:hover{background:#f0f2f7;color:var(--text);}
-  .nav-item.active{background:#f0f0ff;color:var(--accent);font-weight:600;}
-  .nav-badge{
-    margin-left:auto;background:var(--red);color:#fff;font-size:11px;font-weight:700;
-    min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;
-    justify-content:center;padding:0 6px;
-  }
-
-  /* ---------- MAIN ---------- */
-  .main{flex:1;display:flex;flex-direction:column;}
-  .topbar{
-    background:var(--card);border-bottom:1px solid var(--border);
-    padding:18px 32px;display:flex;align-items:center;justify-content:space-between;
-    position:sticky;top:0;z-index:5;
-  }
-  .topbar h2{font-size:20px;font-weight:700;}
-  .topbar .refresh{
-    background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:8px;
-    font-size:13px;font-weight:600;cursor:pointer;transition:.15s;
-  }
-  .topbar .refresh:hover{background:var(--accent-dark);}
-  .content{padding:28px 32px;}
-  .tab-content{display:none;animation:fade .25s ease;}
-  .tab-content.active{display:block;}
-  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-  /* ---------- KPI CARDS ---------- */
-  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;}
-  .kpi{
-    background:var(--card);border:1px solid var(--border);border-radius:12px;
-    padding:22px;box-shadow:var(--shadow);
-  }
-  .kpi .label{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:8px;}
-  .kpi .value{font-size:28px;font-weight:700;letter-spacing:-.5px;}
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .header h1{font-size:22px;color:var(--accent);font-weight:700;letter-spacing:-.3px;}
+  .header .sub{font-size:13px;color:var(--muted);}
+  .refresh{background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;}
+  .refresh:hover{background:#4b45c6;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:22px;}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);}
+  .kpi .icon{font-size:20px;}
+  .kpi .label{font-size:13px;color:var(--muted);font-weight:500;margin:8px 0 6px;}
+  .kpi .value{font-size:26px;font-weight:700;letter-spacing:-.5px;}
   .kpi.given .value{color:var(--accent);}
   .kpi.recovered .value{color:var(--green);}
   .kpi.pending .value{color:var(--amber);}
-  .kpi .icon{font-size:22px;margin-bottom:10px;display:block;}
-
-  /* ---------- REQUEST CARDS ---------- */
-  .request-card{
-    background:var(--card);border:1px solid var(--border);border-radius:12px;
-    padding:20px;box-shadow:var(--shadow);display:flex;justify-content:space-between;
-    gap:16px;margin-bottom:14px;
-  }
-  .req-id{font-size:12px;color:var(--accent);font-weight:700;}
-  .req-name{font-size:16px;font-weight:600;margin:4px 0;}
-  .req-meta{font-size:12px;color:var(--muted);margin-bottom:8px;}
-  .req-reason{font-size:13px;color:var(--text);background:#f6f9fc;padding:8px 10px;border-radius:6px;}
-  .req-right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:140px;}
-  .req-amount{font-size:22px;font-weight:700;color:var(--accent);}
-  .req-repay{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-  .approve-btn{
-    background:var(--accent);color:#fff;border:none;padding:9px 18px;border-radius:8px;
-    font-size:13px;font-weight:600;cursor:pointer;transition:.15s;
-  }
-  .approve-btn:hover{background:var(--accent-dark);}
-
-  /* ---------- FORMS ---------- */
-  .card{
-    background:var(--card);border:1px solid var(--border);border-radius:12px;
-    padding:24px;box-shadow:var(--shadow);max-width:640px;
-  }
-  .card h3{font-size:16px;margin-bottom:16px;}
-  label.fld{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px;}
-  select,input[type="number"],textarea{
-    width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:8px;
-    font-size:14px;font-family:inherit;background:#fff;color:var(--text);
-  }
-  select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent);}
-  textarea{resize:vertical;min-height:70px;}
-
-  .bal-info{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;
-  }
-  .bal-box{background:#f6f9fc;border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
-  .bal-box .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
-  .bal-box .amt{font-size:20px;font-weight:700;margin-top:4px;}
-  #balDue{color:var(--amber);}
-
-  .radio-row{display:flex;gap:14px;margin-top:6px;}
-  .radio-opt{
-    flex:1;border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;
-    display:flex;align-items:center;gap:8px;font-size:14px;transition:.15s;
-  }
-  .radio-opt:hover{border-color:var(--accent);}
-  .radio-opt input{width:auto;}
-
-  .btn-primary{
-    background:var(--accent);color:#fff;border:none;padding:12px 22px;border-radius:8px;
-    font-size:14px;font-weight:600;cursor:pointer;margin-top:20px;transition:.15s;
-  }
-  .btn-primary:hover{background:var(--accent-dark);}
-  .btn-primary:disabled{opacity:.6;cursor:not-allowed;}
-  .btn-danger{
-    background:#fff;color:var(--red);border:1px solid var(--red);padding:12px 22px;
-    border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s;
-  }
-  .btn-danger:hover{background:var(--red);color:#fff;}
-
-  /* ---------- TABLES ---------- */
-  .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow-x:auto;}
+  .kpi.emp .value{color:var(--text);}
+  .chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;margin-bottom:22px;}
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);}
+  .chart-card h3{font-size:15px;font-weight:600;margin-bottom:14px;}
+  .chart-card .cwrap{position:relative;height:280px;}
+  .chart-card.wide{grid-column:1 / -1;}
+  .chart-card.wide .cwrap{height:340px;}
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;}
+  .table-card h3{font-size:15px;font-weight:600;padding:18px 20px 0;}
+  .table-wrap{overflow-x:auto;padding:14px 6px 6px;}
   .data-table{width:100%;border-collapse:collapse;font-size:13px;}
-  .data-table th{
-    text-align:left;padding:14px 16px;background:#f6f9fc;color:var(--muted);
-    font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;
-    border-bottom:1px solid var(--border);white-space:nowrap;
-  }
-  .data-table td{padding:14px 16px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .data-table th{text-align:left;padding:12px 16px;background:#f6f9fc;color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .data-table td{padding:12px 16px;border-bottom:1px solid var(--border);}
   .data-table tr:last-child td{border-bottom:none;}
   .data-table tr:hover td{background:#fafbfd;}
   .bal-due{color:var(--amber);font-weight:700;}
   .bal-nil{color:var(--green);font-weight:600;}
-
-  .pill{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
-  .pill-approved{background:#def7ec;color:var(--green);}
-  .pill-partial{background:#fef3c7;color:var(--amber);}
-  .pill-rejected{background:#fde8e8;color:var(--red);}
-  .pill-pending{background:#e5edff;color:var(--accent);}
-
-  /* ---------- EMPTY / LOADING ---------- */
-  .empty-state,.loading-msg{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
-  .empty-icon{display:block;font-size:36px;margin-bottom:10px;}
-
-  /* ---------- MODAL ---------- */
-  .modal-overlay{
-    position:fixed;inset:0;background:rgba(10,37,64,.45);display:flex;align-items:center;
-    justify-content:center;z-index:50;padding:20px;
-  }
-  .modal{
-    background:#fff;border-radius:14px;max-width:560px;width:100%;padding:26px;
-    box-shadow:0 20px 60px rgba(10,37,64,.25);max-height:90vh;overflow-y:auto;
-  }
-  .modal h3{font-size:18px;margin-bottom:18px;}
-  .modal-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
-  .info-item{background:#f6f9fc;border-radius:8px;padding:12px;}
-  .info-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
-  .info-val{font-size:14px;font-weight:600;margin-top:3px;}
-  .info-val.big{font-size:22px;color:var(--accent);}
-  .modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:20px;}
-
-  /* ---------- TOAST ---------- */
-  .toast{
-    position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
-    background:var(--text);color:#fff;padding:14px 22px;border-radius:10px;
-    font-size:14px;font-weight:500;z-index:100;box-shadow:0 10px 30px rgba(0,0,0,.2);
-    max-width:90%;
-  }
-  .toast.success{background:var(--green);}
-  .toast.error{background:var(--red);}
-
-  @media(max-width:820px){
-    .sidebar{width:64px;}
-    .brand h1,.brand span,.nav-item span.txt{display:none;}
-    .nav-item{justify-content:center;}
-    .content{padding:18px;}
-    .bal-info{grid-template-columns:1fr;}
-    .request-card{flex-direction:column;}
-    .req-right{align-items:flex-start;}
-  }
+  .num{text-align:right;font-variant-numeric:tabular-nums;}
+  .loading-msg{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:100;box-shadow:0 10px 30px rgba(0,0,0,.2);}
+  @media(max-width:600px){ body{padding:14px;} .chart-card .cwrap{height:240px;} }
 </style>
 </head>
 <body>
 
-  <!-- ===== SIDEBAR ===== -->
-  <aside class="sidebar">
-    <div class="brand">
-      <h1>⚡ Litpax</h1>
-      <span>Advance Management</span>
+  <div class="header">
+    <div>
+      <h1>&#9889; Litpax &mdash; Advance Dashboard</h1>
+      <div class="sub" id="lastSync">Loading data...</div>
     </div>
-    <nav class="nav">
-      <div class="nav-item active" onclick="showTab('dashboard')">📊 <span class="txt">Dashboard</span></div>
-      <div class="nav-item" onclick="showTab('pending')">📥 <span class="txt">Pending</span><span id="pendingBadge" class="nav-badge hidden">0</span></div>
-      <div class="nav-item" onclick="showTab('recovery')">💰 <span class="txt">Recovery</span></div>
-      <div class="nav-item" onclick="showTab('balance')">📋 <span class="txt">Balance</span></div>
-      <div class="nav-item" onclick="showTab('history')">🗂️ <span class="txt">All Requests</span></div>
-    </nav>
-  </aside>
+    <button class="refresh" onclick="loadDashboard()">&#128260; Refresh</button>
+  </div>
 
-  <!-- ===== MAIN ===== -->
-  <div class="main">
-    <div class="topbar">
-      <h2 id="pageTitle">Dashboard</h2>
-      <button class="refresh" onclick="loadAll()">🔄 Refresh</button>
+  <div class="kpi-grid">
+    <div class="kpi given"><span class="icon">&#128184;</span><div class="label">Total Advance Given</div><div class="value" id="kpiGiven">&#8377;0</div></div>
+    <div class="kpi recovered"><span class="icon">&#9989;</span><div class="label">Total Recovered</div><div class="value" id="kpiRecovered">&#8377;0</div></div>
+    <div class="kpi pending"><span class="icon">&#9203;</span><div class="label">Pending Balance</div><div class="value" id="kpiPending">&#8377;0</div></div>
+    <div class="kpi emp"><span class="icon">&#128101;</span><div class="label">Employees with Balance</div><div class="value" id="kpiEmp">0</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>&#128176; Recovered vs Pending</h3>
+      <div class="cwrap"><canvas id="chartOverview"></canvas></div>
     </div>
-
-    <div class="content">
-
-      <!-- DASHBOARD -->
-      <section id="tab-dashboard" class="tab-content active">
-        <div class="kpi-grid">
-          <div class="kpi given">
-            <span class="icon">💸</span>
-            <div class="label">Total Advance Given</div>
-            <div class="value" id="dashTotalGiven">₹0</div>
-          </div>
-          <div class="kpi recovered">
-            <span class="icon">✅</span>
-            <div class="label">Total Recovered</div>
-            <div class="value" id="dashTotalRecovered">₹0</div>
-          </div>
-          <div class="kpi pending">
-            <span class="icon">⏳</span>
-            <div class="label">Total Pending Balance</div>
-            <div class="value" id="dashTotalPending">₹0</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PENDING -->
-      <section id="tab-pending" class="tab-content">
-        <div id="pendingList"><div class="loading-msg">Loading...</div></div>
-      </section>
-
-      <!-- RECOVERY -->
-      <section id="tab-recovery" class="tab-content">
-        <div class="card">
-          <h3>Record a Recovery</h3>
-          <label class="fld">Select Employee</label>
-          <select id="recoveryEmpSelect" onchange="onEmpSelected()">
-            <option value="">-- Select Employee --</option>
-          </select>
-
-          <div id="empBalanceInfo" class="bal-info hidden">
-            <div class="bal-box"><div class="lbl">Total Advance</div><div class="amt" id="balTaken">₹0</div></div>
-            <div class="bal-box"><div class="lbl">Recovered</div><div class="amt" id="balRecovered">₹0</div></div>
-            <div class="bal-box"><div class="lbl">Balance Due</div><div class="amt" id="balDue">₹0</div></div>
-          </div>
-
-          <div id="recoveryForm" class="hidden">
-            <label class="fld">Recovery Amount (₹)</label>
-            <input type="number" id="recoveryAmount" placeholder="Enter amount" min="0" />
-
-            <label class="fld">Payment Type</label>
-            <div class="radio-row">
-              <label class="radio-opt"><input type="radio" name="payType" value="Cash" /> 💵 Cash</label>
-              <label class="radio-opt"><input type="radio" name="payType" value="Salary Deduction" /> 📉 Salary Deduction</label>
-            </div>
-
-            <label class="fld">Remarks (optional)</label>
-            <textarea id="recoveryRemarks" placeholder="Any note..."></textarea>
-
-            <button class="btn-primary" onclick="submitRecovery()">✅ Record Recovery</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- BALANCE -->
-      <section id="tab-balance" class="tab-content">
-        <div id="balanceTable" class="table-wrap"><div class="loading-msg">Loading...</div></div>
-      </section>
-
-      <!-- HISTORY -->
-      <section id="tab-history" class="tab-content">
-        <div id="historyTable" class="table-wrap"><div class="loading-msg">Loading...</div></div>
-      </section>
-
+    <div class="chart-card">
+      <h3>&#127970; Department-wise Advance</h3>
+      <div class="cwrap"><canvas id="chartDept"></canvas></div>
+    </div>
+    <div class="chart-card wide">
+      <h3>&#128202; Kisne Kitna Advance Liya (Advance vs Recovered)</h3>
+      <div class="cwrap"><canvas id="chartEmp"></canvas></div>
+    </div>
+    <div class="chart-card wide">
+      <h3>&#9203; Employee-wise Pending Balance</h3>
+      <div class="cwrap"><canvas id="chartBalance"></canvas></div>
     </div>
   </div>
 
-  <!-- ===== APPROVE MODAL ===== -->
-  <div id="approveModal" class="modal-overlay hidden">
-    <div class="modal">
-      <h3>Review Request</h3>
-      <div id="modalInfo" class="modal-info-grid"></div>
-
-      <label class="fld">Approved Amount (₹)</label>
-      <input type="number" id="approvedAmount" min="0" />
-
-      <label class="fld">Remarks</label>
-      <textarea id="approveRemarks" placeholder="Optional remarks..."></textarea>
-
-      <div class="modal-actions">
-        <button class="btn-danger" onclick="rejectRequest()">❌ Reject</button>
-        <button class="btn-primary" onclick="approveRequest()">✅ Approve</button>
-      </div>
-    </div>
+  <div class="table-card">
+    <h3>&#128203; Employee-wise Detail</h3>
+    <div class="table-wrap" id="detailTable"><div class="loading-msg">Loading...</div></div>
   </div>
 
-  <!-- ===== TOAST ===== -->
   <div id="toast" class="toast hidden"></div>
 
 <script>
 /* ============================================================
-   ⚠️ YAHAN APNA GOOGLE APPS SCRIPT (GAS) URL PASTE KARO ⬇️
+   YAHAN APNA GOOGLE APPS SCRIPT (GAS) URL PASTE KARO
    ============================================================ */
-const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbx76cW082FnZ7Q0iX3oYamPw_I5uS_OwcT7fXjK8PCXfQQfR7lO7YtnDhH3GyBPk5_Q/exec"
-};
+const GAS_URL = "https://script.google.com/macros/s/AKfycbx76cW082FnZ7Q0iX3oYamPw_I5uS_OwcT7fXjK8PCXfQQfR7lO7YtnDhH3GyBPk5_Q/exec";
 /* ============================================================ */
 
-const GAS_URL = CONFIG.GAS_URL;
+let charts = {};
+const COLORS = ["#635bff","#00d4b1","#ff8c42","#f25c78","#7c4dff","#26a69a","#ffb020","#5b8def","#e0648a","#3ec6a0"];
 
-let currentRequestId = null;
-let activeAdvances   = [];
-let allRequests      = [];
+document.addEventListener("DOMContentLoaded", loadDashboard);
 
-// ===== INIT =====
-document.addEventListener("DOMContentLoaded", () => { loadAll(); });
-
-async function loadAll() {
-  const selectedEmp = document.getElementById("recoveryEmpSelect")?.value || "";
-  await Promise.all([
-    loadDashboard(),
-    loadPendingRequests(),
-    loadActiveAdvances(),
-    loadBalance(),
-    loadAllRequests()
-  ]);
-  if (selectedEmp) {
-    document.getElementById("recoveryEmpSelect").value = selectedEmp;
-    onEmpSelected();
-  }
-}
-
-// ===== TAB SWITCHING =====
-const TAB_TITLES = {
-  dashboard:"Dashboard", pending:"Pending Requests", recovery:"Recovery Entry",
-  balance:"Balance Overview", history:"All Requests"
-};
-
-function showTab(name) {
-  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-  document.getElementById("tab-" + name).classList.add("active");
-  document.querySelectorAll(".nav-item")[
-    ["dashboard","pending","recovery","balance","history"].indexOf(name)
-  ].classList.add("active");
-  document.getElementById("pageTitle").textContent = TAB_TITLES[name];
-}
-
-// ===== DASHBOARD =====
 async function loadDashboard() {
   try {
     const res  = await fetch(GAS_URL + "?action=getBalance");
     const data = await res.json();
-    if (!data.success) return;
+    if (!data.success) { showToast("Data load nahi hua."); return; }
 
-    const rows = data.data;
-    let totalGiven = 0, totalRecovered = 0, totalPending = 0;
-    rows.forEach(r => {
-      totalGiven     += parseFloat(r.totalTaken)     || 0;
-      totalRecovered += parseFloat(r.totalRecovered) || 0;
-      totalPending   += parseFloat(r.balanceDue)     || 0;
-    });
-
-    document.getElementById("dashTotalGiven").textContent     = "₹" + fmtNum(totalGiven);
-    document.getElementById("dashTotalRecovered").textContent = "₹" + fmtNum(totalRecovered);
-    document.getElementById("dashTotalPending").textContent   = "₹" + fmtNum(totalPending);
-  } catch (err) {}
-}
-
-// ===== PENDING REQUESTS =====
-async function loadPendingRequests() {
-  try {
-    const res  = await fetch(GAS_URL + "?action=getAllRequests");
-    const data = await res.json();
-    if (!data.success) return;
-
-    allRequests = data.data;
-    const pending = allRequests.filter(r => r["Status"] === "Pending");
-
-    const badge = document.getElementById("pendingBadge");
-    if (pending.length > 0) {
-      badge.textContent = pending.length;
-      badge.classList.remove("hidden");
-    } else {
-      badge.classList.add("hidden");
-    }
-
-    const container = document.getElementById("pendingList");
-    if (pending.length === 0) {
-      container.innerHTML = `<div class="empty-state"><span class="empty-icon">✅</span>No pending requests.</div>`;
-      return;
-    }
-
-    container.innerHTML = pending.map(r => `
-      <div class="request-card">
-        <div class="req-left">
-          <div class="req-id">${r["Request ID"]}</div>
-          <div class="req-name">${r["Employee Name"]} <span style="font-size:12px;color:var(--muted)">(${r["Employee ID"]})</span></div>
-          <div class="req-meta">🏢 ${r["Department"]} &nbsp;|&nbsp; 🔄 ${r["Repayment Type"]} &nbsp;|&nbsp; 🕐 ${formatDate(r["Timestamp"])}</div>
-          <div class="req-reason">📝 ${r["Reason"]}</div>
-        </div>
-        <div class="req-right">
-          <div class="req-amount">₹${fmtNum(r["Amount Requested"])}</div>
-          <div class="req-repay">Requested</div>
-          <button class="approve-btn" onclick="openApproveModal('${r["Request ID"]}', '${r["Employee Name"]}', '${r["Employee ID"]}', '${r["Department"]}', ${r["Amount Requested"]}, '${(r["Reason"]||'').replace(/'/g,"\\'")}', '${r["Repayment Type"]}')">
-            Review →
-          </button>
-        </div>
-      </div>
-    `).join("");
+    const rows = data.data || [];
+    render(rows);
+    document.getElementById("lastSync").textContent =
+      "Last updated: " + new Date().toLocaleString("en-IN", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
   } catch (err) {
-    document.getElementById("pendingList").innerHTML = `<div class="loading-msg">Error loading data.</div>`;
+    showToast("Server error. GAS URL check karo.");
+    document.getElementById("detailTable").innerHTML = '<div class="loading-msg">Error loading data.</div>';
   }
 }
 
-// ===== APPROVE MODAL =====
-function openApproveModal(reqId, name, empId, dept, amount, reason, repayType) {
-  currentRequestId = reqId;
-  document.getElementById("approveModal").classList.remove("hidden");
-  document.getElementById("approvedAmount").value = amount;
-  document.getElementById("approveRemarks").value = "";
+function render(rows) {
+  let totalGiven = 0, totalRecovered = 0, totalPending = 0, empWithBal = 0;
+  rows.forEach(r => {
+    totalGiven     += parseFloat(r.totalTaken)     || 0;
+    totalRecovered += parseFloat(r.totalRecovered) || 0;
+    totalPending   += parseFloat(r.balanceDue)     || 0;
+    if ((parseFloat(r.balanceDue) || 0) > 0) empWithBal++;
+  });
 
-  document.getElementById("modalInfo").innerHTML = `
-    <div class="info-item"><div class="info-label">Request ID</div><div class="info-val">${reqId}</div></div>
-    <div class="info-item"><div class="info-label">Employee</div><div class="info-val">${name} (${empId})</div></div>
-    <div class="info-item"><div class="info-label">Department</div><div class="info-val">${dept}</div></div>
-    <div class="info-item"><div class="info-label">Repayment</div><div class="info-val">${repayType}</div></div>
-    <div class="info-item" style="grid-column:span 2">
-      <div class="info-label">Amount Requested</div>
-      <div class="info-val big">₹${fmtNum(amount)}</div>
-    </div>
-    <div class="info-item" style="grid-column:span 2">
-      <div class="info-label">Reason</div>
-      <div class="info-val">${reason}</div>
-    </div>
-  `;
+  document.getElementById("kpiGiven").textContent     = "\u20B9" + fmtNum(totalGiven);
+  document.getElementById("kpiRecovered").textContent = "\u20B9" + fmtNum(totalRecovered);
+  document.getElementById("kpiPending").textContent   = "\u20B9" + fmtNum(totalPending);
+  document.getElementById("kpiEmp").textContent       = empWithBal;
+
+  // Chart 1: Recovered vs Pending
+  drawChart("chartOverview", "doughnut", {
+    labels: ["Recovered", "Pending"],
+    datasets: [{ data:[totalRecovered, totalPending], backgroundColor:[COLORS[1], COLORS[2]], borderWidth:0 }]
+  }, { plugins:{ legend:{ position:"bottom" }, tooltip:{ callbacks:{ label:c => c.label + ": \u20B9" + fmtNum(c.raw) } } }, cutout:"62%" });
+
+  // Chart 2: Department-wise total advance
+  const deptMap = {};
+  rows.forEach(r => { const d = r.dept || "Other"; deptMap[d] = (deptMap[d] || 0) + (parseFloat(r.totalTaken) || 0); });
+  const deptLabels = Object.keys(deptMap);
+  drawChart("chartDept", "pie", {
+    labels: deptLabels,
+    datasets: [{ data:deptLabels.map(d => deptMap[d]), backgroundColor:deptLabels.map((_,i)=>COLORS[i%COLORS.length]), borderWidth:0 }]
+  }, { plugins:{ legend:{ position:"bottom" }, tooltip:{ callbacks:{ label:c => c.label + ": \u20B9" + fmtNum(c.raw) } } } });
+
+  // Chart 3: Employee-wise Advance vs Recovered
+  const sortedByTaken = [...rows].sort((a,b) => (parseFloat(b.totalTaken)||0) - (parseFloat(a.totalTaken)||0));
+  drawChart("chartEmp", "bar", {
+    labels: sortedByTaken.map(r => r.empName),
+    datasets: [
+      { label:"Advance Taken", data:sortedByTaken.map(r => parseFloat(r.totalTaken)||0), backgroundColor:COLORS[0], borderRadius:6 },
+      { label:"Recovered",     data:sortedByTaken.map(r => parseFloat(r.totalRecovered)||0), backgroundColor:COLORS[1], borderRadius:6 }
+    ]
+  }, {
+    plugins:{ legend:{ position:"top" }, tooltip:{ callbacks:{ label:c => c.dataset.label + ": \u20B9" + fmtNum(c.raw) } } },
+    scales:{ y:{ beginAtZero:true, ticks:{ callback:v => "\u20B9" + fmtNum(v) } } }
+  });
+
+  // Chart 4: Pending balance per employee (only >0)
+  const withBal = rows.filter(r => (parseFloat(r.balanceDue)||0) > 0)
+                      .sort((a,b) => (parseFloat(b.balanceDue)||0) - (parseFloat(a.balanceDue)||0));
+  drawChart("chartBalance", "bar", {
+    labels: withBal.map(r => r.empName),
+    datasets: [{ label:"Balance Due", data:withBal.map(r => parseFloat(r.balanceDue)||0), backgroundColor:COLORS[2], borderRadius:6 }]
+  }, {
+    indexAxis:"y",
+    plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:c => "\u20B9" + fmtNum(c.raw) } } },
+    scales:{ x:{ beginAtZero:true, ticks:{ callback:v => "\u20B9" + fmtNum(v) } } }
+  });
+
+  renderTable(rows);
 }
 
-function closeModal() {
-  document.getElementById("approveModal").classList.add("hidden");
-  currentRequestId = null;
+function renderTable(rows) {
+  const container = document.getElementById("detailTable");
+  if (!rows.length) { container.innerHTML = '<div class="loading-msg">No data found.</div>'; return; }
+  const sorted = [...rows].sort((a,b) => (parseFloat(b.balanceDue)||0) - (parseFloat(a.balanceDue)||0));
+
+  container.innerHTML =
+    '<table class="data-table"><thead><tr>' +
+    '<th>Emp ID</th><th>Name</th><th>Department</th>' +
+    '<th class="num">Total Advance</th><th class="num">Recovered</th><th class="num">Balance Due</th>' +
+    '</tr></thead><tbody>' +
+    sorted.map(r =>
+      '<tr>' +
+      '<td>' + r.empId + '</td>' +
+      '<td><strong>' + r.empName + '</strong></td>' +
+      '<td>' + (r.dept || "\u2014") + '</td>' +
+      '<td class="num">\u20B9' + fmtNum(r.totalTaken) + '</td>' +
+      '<td class="num">\u20B9' + fmtNum(r.totalRecovered) + '</td>' +
+      '<td class="num ' + (parseFloat(r.balanceDue) > 0 ? 'bal-due' : 'bal-nil') + '">' +
+        (parseFloat(r.balanceDue) > 0 ? '\u20B9' + fmtNum(r.balanceDue) : '\u2705 NIL') +
+      '</td>' +
+      '</tr>'
+    ).join("") +
+    '</tbody></table>';
 }
 
-async function approveRequest() {
-  const amount  = parseFloat(document.getElementById("approvedAmount").value);
-  const remarks = document.getElementById("approveRemarks").value.trim();
-  if (!amount || amount <= 0) { showToast("Enter amount to approve.", "error"); return; }
-
-  const btn = document.querySelector(".btn-primary[onclick='approveRequest()']");
-  if (btn) { btn.disabled = true; btn.textContent = "Processing..."; }
-
-  try {
-    const res  = await fetch(GAS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action:"approveRequest", requestId:currentRequestId, approvedAmount:amount, remarks })
-    });
-    const data = await res.json();
-    if (data.success) {
-      showToast(`✅ ${data.status}! ₹${fmtNum(amount)} approved.`, "success");
-      closeModal(); loadAll();
-    } else {
-      showToast("Error: " + data.error, "error");
-    }
-  } catch (err) {
-    showToast("Server error. Try again.", "error");
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = "✅ Approve"; }
-  }
+function drawChart(id, type, data, options) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), {
+    type, data,
+    options: Object.assign({ responsive:true, maintainAspectRatio:false }, options)
+  });
 }
 
-async function rejectRequest() {
-  const remarks = document.getElementById("approveRemarks").value.trim();
-  if (!confirm("Reject this request?")) return;
-
-  const btn = document.querySelector(".btn-danger[onclick='rejectRequest()']");
-  if (btn) { btn.disabled = true; btn.textContent = "Processing..."; }
-
-  try {
-    const res  = await fetch(GAS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action:"rejectRequest", requestId:currentRequestId, remarks })
-    });
-    const data = await res.json();
-    if (data.success) { showToast("❌ Request rejected.", "error"); closeModal(); loadAll(); }
-  } catch (err) {
-    showToast("Server error. Try again.", "error");
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = "❌ Reject"; }
-  }
-}
-
-// ===== RECOVERY =====
-async function loadActiveAdvances() {
-  try {
-    const res  = await fetch(GAS_URL + "?action=getActiveAdvances");
-    const data = await res.json();
-    if (!data.success) return;
-
-    activeAdvances = data.data;
-    const select = document.getElementById("recoveryEmpSelect");
-    select.innerHTML = `<option value="">-- Select Employee --</option>`;
-    activeAdvances.forEach(emp => {
-      select.innerHTML += `<option value="${emp.empId}">${emp.empName} — ₹${fmtNum(emp.balanceDue)} pending</option>`;
-    });
-    if (activeAdvances.length === 0) {
-      select.innerHTML = `<option value="">✅ No pending balance</option>`;
-    }
-  } catch (err) {}
-}
-
-function onEmpSelected() {
-  const empId   = document.getElementById("recoveryEmpSelect").value;
-  const infoBox = document.getElementById("empBalanceInfo");
-  const form    = document.getElementById("recoveryForm");
-
-  if (!empId) { infoBox.classList.add("hidden"); form.classList.add("hidden"); return; }
-
-  const emp = activeAdvances.find(e => String(e.empId).trim() === String(empId).trim());
-  if (!emp) return;
-
-  document.getElementById("balTaken").textContent     = "₹" + fmtNum(emp.totalTaken);
-  document.getElementById("balRecovered").textContent = "₹" + fmtNum(emp.totalRecovered);
-  document.getElementById("balDue").textContent       = "₹" + fmtNum(emp.balanceDue);
-
-  document.getElementById("recoveryAmount").value = "";
-  document.getElementById("recoveryRemarks").value = "";
-  document.querySelectorAll('input[name="payType"]').forEach(r => r.checked = false);
-
-  infoBox.classList.remove("hidden");
-  form.classList.remove("hidden");
-}
-
-async function submitRecovery() {
-  const empId   = document.getElementById("recoveryEmpSelect").value;
-  const amount  = parseFloat(document.getElementById("recoveryAmount").value);
-  const payType = document.querySelector('input[name="payType"]:checked');
-  const remarks = document.getElementById("recoveryRemarks").value.trim();
-
-  if (!empId)                { showToast("Please select an employee.", "error"); return; }
-  if (!amount || amount <= 0){ showToast("Please enter a valid amount.", "error"); return; }
-  if (!payType)              { showToast("Please select payment type.", "error"); return; }
-
-  const emp = activeAdvances.find(e => String(e.empId).trim() === String(empId).trim());
-  if (!emp) { showToast("Employee not found.", "error"); return; }
-
-  if (amount > parseFloat(emp.balanceDue)) {
-    showToast(`Amount exceeds balance! Max: ₹${fmtNum(emp.balanceDue)}`, "error"); return;
-  }
-
-  const btn = document.querySelector(".btn-primary[onclick='submitRecovery()']");
-  if (btn) { btn.disabled = true; btn.textContent = "Recording..."; }
-
-  try {
-    const res  = await fetch(GAS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain" },
-      body: JSON.stringify({ action:"addRecovery", empId:String(empId), amount:amount, paymentType:payType.value, remarks:remarks })
-    });
-    const data = await res.json();
-    if (data.success) {
-      if (data.cleared) {
-        showToast(`🎉 ₹${fmtNum(amount)} recorded! Balance cleared — ${emp.empName} removed from list.`, "success");
-      } else {
-        showToast(`✅ ₹${fmtNum(amount)} recorded! Remaining balance: ₹${fmtNum(data.balanceDue)}`, "success");
-      }
-      document.getElementById("recoveryEmpSelect").value = "";
-      document.getElementById("empBalanceInfo").classList.add("hidden");
-      document.getElementById("recoveryForm").classList.add("hidden");
-      loadAll();
-    } else {
-      showToast("Error: " + (data.error || "Something went wrong."), "error");
-    }
-  } catch (err) {
-    showToast("Server error. Try again.", "error");
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = "✅ Record Recovery"; }
-  }
-}
-
-// ===== BALANCE TABLE =====
-async function loadBalance() {
-  try {
-    const res  = await fetch(GAS_URL + "?action=getBalance");
-    const data = await res.json();
-    if (!data.success) return;
-
-    const rows = data.data;
-    const container = document.getElementById("balanceTable");
-    if (rows.length === 0) { container.innerHTML = `<div class="loading-msg">No data found.</div>`; return; }
-
-    container.innerHTML = `
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Emp ID</th><th>Name</th><th>Department</th>
-            <th>Total Advance</th><th>Total Recovered</th><th>Balance Due</th><th>Last Updated</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r => `
-            <tr>
-              <td>${r.empId}</td>
-              <td><strong>${r.empName}</strong></td>
-              <td>${r.dept}</td>
-              <td>₹${fmtNum(r.totalTaken)}</td>
-              <td>₹${fmtNum(r.totalRecovered)}</td>
-              <td class="${parseFloat(r.balanceDue) > 0 ? 'bal-due' : 'bal-nil'}">
-                ${parseFloat(r.balanceDue) > 0 ? '₹' + fmtNum(r.balanceDue) : '✅ NIL'}
-              </td>
-              <td>${formatDate(r.lastUpdated)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-  } catch (err) {}
-}
-
-// ===== ALL REQUESTS TABLE =====
-async function loadAllRequests() {
-  try {
-    const res  = await fetch(GAS_URL + "?action=getAllRequests");
-    const data = await res.json();
-    if (!data.success) return;
-
-    const rows = data.data;
-    const container = document.getElementById("historyTable");
-    if (rows.length === 0) { container.innerHTML = `<div class="loading-msg">No requests found.</div>`; return; }
-
-    const statusPill = s => {
-      if (s === "Approved")         return `<span class="pill pill-approved">Approved</span>`;
-      if (s === "Partial Approved") return `<span class="pill pill-partial">Partial</span>`;
-      if (s === "Rejected")         return `<span class="pill pill-rejected">Rejected</span>`;
-      return `<span class="pill pill-pending">Pending</span>`;
-    };
-
-    container.innerHTML = `
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>ID</th><th>Date</th><th>Name</th><th>Dept</th>
-            <th>Requested</th><th>Approved</th><th>Status</th><th>Remarks</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r => `
-            <tr>
-              <td><strong>${r["Request ID"]}</strong></td>
-              <td>${formatDate(r["Timestamp"])}</td>
-              <td>${r["Employee Name"]}<br><span style="font-size:11px;color:var(--muted)">${r["Employee ID"]}</span></td>
-              <td>${r["Department"]}</td>
-              <td>₹${fmtNum(r["Amount Requested"])}</td>
-              <td>${r["Approved Amount"] ? "₹" + fmtNum(r["Approved Amount"]) : "—"}</td>
-              <td>${statusPill(r["Status"])}</td>
-              <td style="max-width:150px;white-space:normal;font-size:12px">${r["Remarks"] || "—"}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-  } catch (err) {}
-}
-
-// ===== HELPERS =====
 function fmtNum(n) { return Number(n || 0).toLocaleString("en-IN"); }
 
-function formatDate(val) {
-  if (!val) return "—";
-  const d = new Date(val);
-  if (isNaN(d)) return val;
-  return d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
-}
-
-function showToast(msg, type = "") {
+function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg;
-  t.className = "toast" + (type ? " " + type : "");
   t.classList.remove("hidden");
   setTimeout(() => t.classList.add("hidden"), 4000);
 }
-
-document.getElementById("approveModal").addEventListener("click", function(e) {
-  if (e.target === this) closeModal();
-});
 </script>
 </body>
 </html>
